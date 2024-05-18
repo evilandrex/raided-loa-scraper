@@ -231,7 +231,6 @@ def fetch_log(id: int) -> List[dict]:
         playerEntries += [
             {
                 "id": id,
-                "player": player,
                 "class": specs[player],
                 "gearScore": playerData[player]["gearScore"],
                 "dps": playerData[player]["dps"],
