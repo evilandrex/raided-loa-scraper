@@ -74,3 +74,4 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "Update data for ${{ matrix.encounter }}"
+          skip_fetch: false
