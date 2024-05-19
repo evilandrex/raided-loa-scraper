@@ -70,8 +70,10 @@ jobs:
       - name: Scrape all bosses
         run: python scrape.py boss ${{ matrix.encounter }} --from-latest --patience 5
 
+      - name: git pull
+        run: git pull
+
       - name: Commit changes
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "Update data for ${{ matrix.encounter }}"
-          skip_fetch: false
