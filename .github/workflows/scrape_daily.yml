@@ -67,7 +67,7 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Scrape all bosses
+      - name: Scrape boss
         run: python scrape.py boss ${{ matrix.encounter }} --from-latest --patience 5
 
       - name: git pull
