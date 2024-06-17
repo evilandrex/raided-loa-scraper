@@ -204,6 +204,14 @@ def fetch_log(id: int) -> List[dict]:
                 time.sleep(1)
 
         r = _call_logAPI(id)
+    elif r.status_code == 404:
+        # Try once again
+        time.sleep(30)
+        r = _call_logAPI(id)
+
+        if r.status_code == 404:
+            click.echo(f"Log {id} not found.")
+            return pd.DataFrame()
 
     try:
         data = json.loads(r.text)
