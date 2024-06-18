@@ -16,6 +16,7 @@ BOSSES = {
     "Akkan": {"Normal": [1, 2, 3], "Hard": [1, 2, 3]},
     "Ivory": {"Normal": [1, 2, 3, 4], "Hard": [1, 2, 3, 4]},
     "Thaemine": {"Normal": [1, 2, 3], "Hard": [1, 2, 3, 4]},
+    "Echidna": {"Normal": [1, 2], "Hard": [1, 2]},
 }
 SIDEREAL_SKILLS = [
     67000,
@@ -71,7 +72,7 @@ SIDEREAL_BUFFS = [
     700014102,
     700014103,
     700016102,
-    700016103
+    700016103,
 ]
 
 
@@ -553,13 +554,13 @@ def classify_weird(log: dict, specs: dict) -> bool:
     # Player without a class
     if "Unknown" in specs.values():
         return True
-    
+
     # Sidereal skills
-    if any([int(id) in SIDEREAL_SKILLS for id in log['data']['skillCatalog'].keys()]):
+    if any([int(id) in SIDEREAL_SKILLS for id in log["data"]["skillCatalog"].keys()]):
         return True
-    
+
     # Sidereal buffs
-    if any([int(id) in SIDEREAL_BUFFS for id in log['data']['buffCatalog'].keys()]):
+    if any([int(id) in SIDEREAL_BUFFS for id in log["data"]["buffCatalog"].keys()]):
         return True
 
     return False
