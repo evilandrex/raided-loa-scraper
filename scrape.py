@@ -9,7 +9,7 @@ def cli():
     pass
 
 
-@click.command()
+@cli.command()
 @click.argument("boss", type=str, required=True)
 @click.argument("gate", type=int, required=False)
 @click.argument("difficulty", type=str, required=False)
@@ -101,10 +101,7 @@ def boss(
     click.echo(f"Time elapsed: {end - start:.2f} seconds")
 
 
-cli.add_command(boss)
-
-
-@click.command()
+@cli.command()
 @click.argument("boss", type=str, required=True)
 @click.argument("gate", type=int, required=False)
 @click.argument("difficulty", type=str, required=False)
@@ -168,8 +165,6 @@ def update(
     end = time.time()
     click.echo(f"Time elapsed: {end - start:.2f} seconds")
 
-
-cli.add_command(update)
 
 if __name__ == "__main__":
     cli()
