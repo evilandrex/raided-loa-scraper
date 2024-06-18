@@ -17,6 +17,62 @@ BOSSES = {
     "Ivory": {"Normal": [1, 2, 3, 4], "Hard": [1, 2, 3, 4]},
     "Thaemine": {"Normal": [1, 2, 3], "Hard": [1, 2, 3, 4]},
 }
+SIDEREAL_SKILLS = [
+    67000,
+    67001,
+    67002,
+    67003,
+    67004,
+    67005,
+    67006,
+    67007,
+    67008,
+    67009,
+    67010,
+    67011,
+    67012,
+    67013,
+    67100,
+    67101,
+    67102,
+    67103,
+    67104,
+    67105,
+    67106,
+    67107,
+    67108,
+    67109,
+    67110,
+    67111,
+    67112,
+    67113,
+]
+
+SIDEREAL_BUFFS = [
+    77301060,
+    700001103,
+    700001104,
+    700001105,
+    700001201,
+    700002201,
+    700004102,
+    700004103,
+    700004201,
+    700006102,
+    700006103,
+    700006201,
+    700007101,
+    700007201,
+    700011103,
+    700011104,
+    700011105,
+    700011201,
+    700012201,
+    700014102,
+    700014103,
+    700016102,
+    700016103
+]
 
 
 class Filter:
@@ -496,6 +552,14 @@ def classify_weird(log: dict, specs: dict) -> bool:
 
     # Player without a class
     if "Unknown" in specs.values():
+        return True
+    
+    # Sidereal skills
+    if any([int(id) in SIDEREAL_SKILLS for id in log['data']['skillCatalog'].keys()]):
+        return True
+    
+    # Sidereal buffs
+    if any([int(id) in SIDEREAL_BUFFS for id in log['data']['buffCatalog'].keys()]):
         return True
 
     return False
