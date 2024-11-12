@@ -1,7 +1,9 @@
-import click
-import api
 import time
-from typing import List
+from typing import List, Optional
+
+import click
+
+import api
 
 
 @click.group()
@@ -9,15 +11,10 @@ def cli():
     pass
 
 
-@click.command()
+@cli.command()
 @click.argument("boss", type=str, required=True)
 @click.argument("gate", type=int, required=False)
 @click.argument("difficulty", type=str, required=False)
-@click.option(
-    "--from-latest/--from-oldest",
-    default=True,
-    help="Start from either the latest or oldest log",
-)
 @click.option(
     "--from-scratch",
     default=False,
@@ -25,19 +22,14 @@ def cli():
     help="Start from scratch, overwrite cached logs",
 )
 @click.option(
-    "--log-batches",
-    default=20,
+    "--page-size",
+    default=25,
     help="Number of logs to fetch per batch",
 )
 @click.option(
     "--max-logs",
-    default=100000000,
+    default=None,
     help="Maximum number of logs to fetch before stopping.",
-)
-@click.option(
-    "--patience",
-    default=100000000,
-    help="Number of empty calls before stopping.",
 )
 @click.option(
     "--verbose",
@@ -50,11 +42,9 @@ def boss(
     boss: str,
     gate: int = None,
     difficulty: str = None,
-    from_latest: bool = True,
     from_scratch: bool = False,
-    log_batches: int = 20,
-    max_logs: int = 100000000,
-    patience: int = 100000000,
+    page_size: int = 20,
+    max_logs: Optional[int] = None,
     verbose: bool = False,
 ):
     """
@@ -75,23 +65,27 @@ def boss(
             if info == {}:
                 bossArgs += [{"boss": bossName}]
             else:
+                # Get gate
+                gate = int(bossName[-1:])
+
+                # Strip G
+                bossName = bossName[:-3]
+
                 # Get the keys for difficulty
-                for diff, gates in info.items():
-                    for gate in gates:
-                        bossArgs += [
-                            {"boss": bossName, "gate": gate, "difficulty": diff}
-                        ]
+                for diff in info['difficulties']:
+                    bossArgs += [
+                        {"boss": bossName, "gate": gate, "difficulty": diff}
+                    ]
+        bossArgs = bossArgs[::-1]
     else:
         bossArgs += [{"boss": boss, "gate": gate, "difficulty": difficulty}]
 
     for kwargs in bossArgs:
         api.scrape_log(
             **kwargs,
-            from_latest=from_latest,
             from_scratch=from_scratch,
-            log_batches=log_batches,
+            page_size=page_size,
             max_logs=max_logs,
-            patience=patience,
             force=boss == "all",
             verbose=verbose,
         )
@@ -101,10 +95,7 @@ def boss(
     click.echo(f"Time elapsed: {end - start:.2f} seconds")
 
 
-cli.add_command(boss)
-
-
-@click.command()
+@cli.command()
 @click.argument("boss", type=str, required=True)
 @click.argument("gate", type=int, required=False)
 @click.argument("difficulty", type=str, required=False)
@@ -120,20 +111,26 @@ cli.add_command(boss)
     help="Update specific builds",
     multiple=True,
 )
+@click.option(
+    "--page-size",
+    default=25,
+    help="Number of logs to fetch per batch",
+)
 def update(
-    boss: str = None,
+    boss: str,
     gate: int = None,
     difficulty: str = None,
     *,
     id: List[int] = [],
-    build: List[str] = [],
+    specs: List[str] = [],
+    page_size: int = 25,
 ):
     """
     Update the log IDs or builds for the BOSS, GATE, and DIFFICULTY.
 
     BOSS is required, GATE and DIFFICULTY should not be set unless necessary.
     """
-    if len(id) == 0 and len(build) == 0:
+    if len(id) == 0 and len(specs) == 0:
         raise ValueError("Either ID or build must be set.")
 
     # Start timer
@@ -148,8 +145,14 @@ def update(
                 bossArgs += [{"boss": bossName}]
             else:
                 # Get the keys for difficulty
-                for diff, gates in info.items():
-                    for gate in gates:
+                for _, difficulties in info.items():
+                    # Get gate
+                    gate = int(bossName[-1:])
+
+                    # Remove gate from bossName
+                    bossName = bossName[:-3]
+
+                    for diff in difficulties:
                         bossArgs += [
                             {"boss": bossName, "gate": gate, "difficulty": diff}
                         ]
@@ -161,15 +164,14 @@ def update(
         api.update_logs(
             **kwargs,
             ids=id,
-            builds=build,
+            specs=specs,
+            page_size=page_size,
         )
 
     # End timer
     end = time.time()
     click.echo(f"Time elapsed: {end - start:.2f} seconds")
 
-
-cli.add_command(update)
 
 if __name__ == "__main__":
     cli()

@@ -1,7 +1,7 @@
 # /.github/workflows/scrape_daily.yml
 on:
-  schedule:
-    - cron: "0 10 * * *" # every day at 12am
+  # schedule:
+  #   - cron: "0 10 * * *" # every day at 12am
   workflow_dispatch:
 
 # Sets permissions of the GITHUB_TOKEN to push to the repository
@@ -21,37 +21,25 @@ jobs:
       matrix:
         encounter:
           [
-            Sonavel,
-            Gargadeth,
-            Veskal,
-            Brelshaza 1 Hard,
-            Brelshaza 2 Hard,
-            Brelshaza 3 Hard,
-            Brelshaza 4 Hard,
-            Kayangel 1 Hard,
-            Kayangel 2 Hard,
-            Kayangel 3 Hard,
-            Akkan 1 Normal,
-            Akkan 2 Normal,
-            Akkan 3 Normal,
-            Akkan 1 Hard,
-            Akkan 2 Hard,
-            Akkan 3 Hard,
-            Ivory 1 Normal,
-            Ivory 2 Normal,
-            Ivory 3 Normal,
-            Ivory 4 Normal,
-            Ivory 1 Hard,
-            Ivory 2 Hard,
-            Ivory 3 Hard,
-            Ivory 4 Hard,
-            Thaemine 1 Normal,
-            Thaemine 2 Normal,
-            Thaemine 3 Normal,
-            Thaemine 1 Hard,
-            Thaemine 2 Hard,
-            Thaemine 3 Hard,
+            Aegir 2 Hard,
+            Aegir 1 Hard,
+            Aegir 2 Normal,
+            Aegir 1 Normal,
+            Behemoth 2 Normal,
+            Behemoth 1 Normal,
+            Echidna 2 Hard,
+            Echidna 1 Hard,
+            Echidna 2 Normal,
+            Echidna 1 Normal,
             Thaemine 4 Hard,
+            Thaemine 3 Hard,
+            Thaemine 2 Hard,
+            Thaemine 1 Hard,
+            Thaemine 3 Normal,
+            Thaemine 2 Normal,
+            Thaemine 1 Normal,
+            Argeos,
+            Veskal,
           ]
     runs-on: ubuntu-latest
     steps:
@@ -68,7 +56,10 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Scrape boss
-        run: python scrape.py boss ${{ matrix.encounter }} --from-latest --patience 5
+        env:
+          IDS_ENDPOINT: ${{ secrets.IDS_ENDPOINT }}
+          LOGS_ENDPOINT: ${{ secrets.LOGS_ENDPOINT }}
+        run: python scrape.py boss ${{ matrix.encounter }}
 
       - name: git pull
         run: git pull
