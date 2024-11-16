@@ -29,17 +29,7 @@ jobs:
             Behemoth 1 Normal,
             Echidna 2 Hard,
             Echidna 1 Hard,
-            Echidna 2 Normal,
-            Echidna 1 Normal,
-            Thaemine 4 Hard,
-            Thaemine 3 Hard,
-            Thaemine 2 Hard,
-            Thaemine 1 Hard,
-            Thaemine 3 Normal,
-            Thaemine 2 Normal,
-            Thaemine 1 Normal,
             Argeos,
-            Veskal,
           ]
     runs-on: ubuntu-latest
     steps:

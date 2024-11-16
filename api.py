@@ -12,35 +12,10 @@ from ratelimit import limits, sleep_and_retry
 
 SUPPORTS = ["Full Bloom", "Blessed Aura", "Desperate Salvation"]
 BOSSES = {
-    "Veskal": {},
     "Argeos": {},
-    "Thaemine G1": {
-        "names": ["Killineza the Dark Worshipper"],
-        "difficulties": ["Normal", "Hard"],
-    },
-    "Thaemine G2": {
-        "names": [
-            "Valinak, Knight of Darkness",
-            "Valinak, Taboo Usurper",
-            "Valinak, Herald of the End",
-        ],
-        "difficulties": ["Normal", "Hard"],
-    },
-    "Thaemine G3": {
-        "names": ["Thaemine the Lightqueller", "Dark Greatsword"],
-        "difficulties": ["Normal", "Hard"],
-    },
-    "Thaemine G4": {
-        "names": [
-            "Darkness Legion Commander Thaemine",
-            "Thaemine Prokel",
-            "Thaemine, Conqueror of Stars",
-        ],
-        "difficulties": ["Hard"],
-    },
     "Echidna G1": {
         "names": ["Red Doom Narkiel", "Agris"],
-        "difficulties": ["Normal", "Hard"],
+        "difficulties": ["Hard"],
     },
     "Echidna G2": {
         "names": [
@@ -50,7 +25,7 @@ BOSSES = {
             "Alcaone, the Twisted Venom",
             "Agris, the Devouring Bog",
         ],
-        "difficulties": ["Normal", "Hard"],
+        "difficulties": ["Hard"],
     },
     "Behemoth G1": {
         "names": [
