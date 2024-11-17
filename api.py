@@ -398,7 +398,7 @@ def scrape_log(
     else:
         # Try to load old data file
         try:
-            df = pd.read_csv(f"./data/{filter.to_name()}.csv", index_col=None)
+            df = pd.read_parquet(f"./data/{filter.to_name()}.parquet", index_col=None)
             oldIDs = df["id"].unique()
 
         except FileNotFoundError:
@@ -438,8 +438,8 @@ def scrape_log(
                 nl=False,
             )
 
-        # Save to csv (saves once per batch)
-        df.to_csv(f"./data/{filter.to_name()}.csv", index=False)
+        # Save to parquet (saves once per batch)
+        df.to_parquet(f"./data/{filter.to_name()}.parquet", index=False)
         long_path = f"./data_long/{filter.to_name()}_long.csv"
         long_log.to_csv(
             long_path,
