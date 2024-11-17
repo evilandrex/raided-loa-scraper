@@ -398,7 +398,7 @@ def scrape_log(
     else:
         # Try to load old data file
         try:
-            df = pd.read_parquet(f"./data/{filter.to_name()}.parquet", index_col=None)
+            df = pd.read_parquet(f"./data/{filter.to_name()}.parquet")
             oldIDs = df["id"].unique()
 
         except FileNotFoundError:
