@@ -29,7 +29,6 @@ jobs:
             Behemoth 1 Normal,
             Echidna 2 Hard,
             Echidna 1 Hard,
-            Argeos,
           ]
     runs-on: ubuntu-latest
     steps:
