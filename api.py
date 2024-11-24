@@ -297,11 +297,12 @@ def exponential_backoff(fun):
             if r.status_code == 429:
                 wait_time = 2**tries
                 total_time += wait_time
-                sp.text = f"Attempt {tries + 1}, Waiting {wait_time} seconds to retry. Total wait time: {total_time:.2f}"
+                sp.text = f"Attempt {tries + 1}, Waiting {wait_time} seconds to retry. Total wait time: {total_time}s."
                 tries += 1
                 time.sleep(wait_time)
             else:
-                sp.ok(f"Success after {tries} attempts over {total_time:.2f} seconds.")
+                sp.text = f"{tries} attempts, over {total_time}s."
+                sp.ok(f"Success!")
                 return r
 
 
