@@ -3,12 +3,14 @@ import os
 import time
 from typing import List, Literal, Optional, Tuple, Union
 import warnings
+from datetime import datetime
 
 import click
 import pandas as pd
 import requests
 from dateutil import parser
 from ratelimit import limits, sleep_and_retry
+from yaspin import yaspin
 
 SUPPORTS = ["Full Bloom", "Blessed Aura", "Desperate Salvation"]
 BOSSES = {
@@ -236,18 +238,25 @@ def fetch_IDs(
     page = (len(parsed_logs) // page_size) + 1
 
     if verbose:
-        click.echo("Looking for logs\r", nl=False)
+        click.echo("Looking for log IDs")
+        fetch_start = time.time()
 
     r = _call_logs_API(filter=filter, page=page, page_size=page_size)
 
     if r.status_code == 429:
         click.echo(f"Rate limited, waiting to retry.")
-        # r = exponential_backoff(
-        #     lambda: _call_logs_API(filter=filter, page=page, page_size=page_size)
+        r = exponential_backoff(
+            lambda: _call_logs_API(filter=filter, page=page, page_size=page_size)
+        )
+
+        # rate_limit_start = time.time()
+        # while r.status_code == 429:
+        #     time.sleep(35)
+        #     r = _call_logs_API(filter=filter, page=page, page_size=page_size)
+
+        # click.echo(
+        #     f"Rate limit wait time: {time.time() - rate_limit_start:.2f} seconds."
         # )
-        while r.status_code == 429:
-            time.sleep(35)
-            r = _call_logs_API(filter=filter, page=page, page_size=page_size)
 
     try:
         data = json.loads(r.text)
@@ -260,7 +269,10 @@ def fetch_IDs(
     ids = [log["id"] for log in data["encounters"] if log["id"] not in parsed_logs]
 
     if verbose:
-        click.echo(f"Found {len(ids)} new logs\r", nl=False)
+        fetch_end = time.time()
+        click.echo(
+            f"Found {len(ids)} new logs within {fetch_end - fetch_start:.2f} seconds."
+        )
 
     return ids
 
@@ -279,31 +291,37 @@ def _call_ids_API(ids: List[int]) -> requests.Response:
 def exponential_backoff(fun):
     tries = 0
     total_time = 0
-    while True:
-        r = fun()
-        if r.status_code == 429:
-            wait_time = 2**tries
-            total_time += wait_time
-            click.echo(
-                f"Waiting {wait_time} seconds to retry. Total time: {total_time}"
-            )
-            time.sleep(wait_time)
-            tries += 1
-        else:
-            return r
+    with yaspin(text="", color="cyan", timer=True) as sp:
+        while True:
+            r = fun()
+            if r.status_code == 429:
+                wait_time = 2**tries
+                total_time += wait_time
+                sp.text = f"Attempt {tries + 1}, Waiting {wait_time} seconds to retry. Total wait time: {total_time:.2f}"
+                tries += 1
+                time.sleep(wait_time)
+            else:
+                sp.ok(f"Success after {tries} attempts over {total_time:.2f} seconds.")
+                return r
 
 
 def fetch_logs(
-    ids: List[int], form: Literal["long", "short", "both"] = "long"
+    ids: List[int], form: Literal["long", "short", "both"] = "long", verbose=False
 ) -> Union[pd.DataFrame, Tuple[pd.DataFrame, pd.DataFrame]]:
     r = _call_ids_API(ids)
 
     if r.status_code == 429:
         click.echo(f"Rate limited, backing off.")
-        # r = exponential_backoff(lambda: _call_ids_API(ids))
-        while r.status_code == 429:
-            time.sleep(35)
-            r = _call_ids_API(ids)
+        r = exponential_backoff(lambda: _call_ids_API(ids))
+
+        # rate_limit_start = time.time()
+        # while r.status_code == 429:
+        #     time.sleep(35)
+        #     r = _call_ids_API(ids)
+
+        # click.echo(
+        #     f"Rate limit wait time: {time.time() - rate_limit_start:.2f} seconds."
+        # )
     elif r.status_code == 404:
         # Try once again
         time.sleep(35)
@@ -321,6 +339,11 @@ def fetch_logs(
         data = json.loads(r.text)
 
     logs = [ShortLog(log) for log in data]
+
+    if verbose:
+        click.echo(
+            f"Last log date time: {str(datetime.fromtimestamp(logs[-1].timestamp/1000))}"
+        )
 
     # Return a big dataframe with all log dataframes concatenated
     if form == "long":
@@ -368,7 +391,9 @@ def scrape_log(
     force: bool = False,
     verbose: bool = False,
 ) -> None:
-    click.echo(f"Fetching logs for {boss} {gate} {difficulty}")
+    click.echo(
+        f"Fetching logs for {boss} {gate if gate is not None else ''} {difficulty if difficulty is not None else ''}"
+    )
 
     # Start timer
     start = time.time()
@@ -423,9 +448,16 @@ def scrape_log(
             break
 
         if verbose:
-            click.echo(f"Getting log info for {nLogs} logs.\r", nl=False)
+            click.echo(f"Getting log info for {nLogs} logs.")
+            log_start = time.time()
 
-        long_log, short_log = fetch_logs(logIDs, form="both")
+        long_log, short_log = fetch_logs(logIDs, form="both", verbose=verbose)
+
+        if verbose:
+            log_end = time.time()
+            click.echo(
+                f"Total time elapsed: {log_end - log_start:.2f} seconds for {nLogs} logs."
+            )
 
         df = pd.concat([df, short_log])
         newLogsParsed += nLogs
@@ -434,9 +466,9 @@ def scrape_log(
 
         if verbose:
             click.echo(
-                f"Batch complete, saving logs. Total of {newLogsParsed} logs scraped.\r",
-                nl=False,
+                f"Batch complete, saving logs. Total of {newLogsParsed} logs scraped."
             )
+            click.echo("")
 
         # Save to parquet (saves once per batch)
         df.to_parquet(f"./data/{filter.to_name()}.parquet", index=False)
@@ -467,6 +499,7 @@ def update_logs(
     """
     Update the logs for a specific boss, gate, difficulty based on an ID or specs.
     """
+    raise NotImplementedError("This function is not updated yet.")
     if page_size > 25:
         raise ValueError("Batch size should be less than 25")
 
