@@ -452,7 +452,7 @@ def scrape_log(
             click.echo(f"Getting log info for {nLogs} logs.")
             log_start = time.time()
 
-        long_log, short_log = fetch_logs(logIDs, form="both", verbose=verbose)
+        short_log = fetch_logs(logIDs, form="short", verbose=verbose)
 
         if verbose:
             log_end = time.time()
@@ -473,13 +473,13 @@ def scrape_log(
 
         # Save to parquet (saves once per batch)
         df.to_parquet(f"./data/{filter.to_name()}.parquet", index=False)
-        long_path = f"./data_long/{filter.to_name()}_long.csv"
-        long_log.to_csv(
-            long_path,
-            mode="a",
-            header=not os.path.exists(long_path),
-            index=False,
-        )
+        # long_path = f"./data_long/{filter.to_name()}_long.csv"
+        # long_log.to_csv(
+        #     long_path,
+        #     mode="a",
+        #     header=not os.path.exists(long_path),
+        #     index=False,
+        # )
 
     # End timer
     end = time.time()
