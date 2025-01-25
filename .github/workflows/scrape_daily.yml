@@ -29,6 +29,11 @@ jobs:
             Behemoth 1 Normal,
             Echidna 2 Hard,
             Echidna 1 Hard,
+            Echidna 2 Solo,
+            Echidna 1 Solo,
+            Thaemine 3 Solo,
+            Thaemine 2 Solo,
+            Thaemine 1 Solo,
           ]
     runs-on: ubuntu-latest
     steps:
