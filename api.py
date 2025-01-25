@@ -15,9 +15,25 @@ from yaspin import yaspin
 SUPPORTS = ["Full Bloom", "Blessed Aura", "Desperate Salvation"]
 BOSSES = {
     "Argeos": {},
+    "Thaemine G1": {
+      "names": ["Killineza the Dark Worshipper"],
+      "difficulties": ["Normal", "Hard", "Solo"],
+    },
+    "Thaemine G2": {
+      "names": [
+        "Valinak, Knight of Darkness",
+        "Valinak, Taboo Usurper",
+        "Valinak, Herald of the End"
+      ],
+      "difficulties": ["Normal", "Hard", "Solo"],
+    },
+    "Thaemine G3": {
+        "names": ["Thaemine the Lightqueller", "Dark Greatsword"],
+        "difficulties": ["Normal", "Hard", "Solo"],
+    },
     "Echidna G1": {
         "names": ["Red Doom Narkiel", "Agris"],
-        "difficulties": ["Hard"],
+        "difficulties": ["Hard", "Solo"],
     },
     "Echidna G2": {
         "names": [
@@ -27,7 +43,7 @@ BOSSES = {
             "Alcaone, the Twisted Venom",
             "Agris, the Devouring Bog",
         ],
-        "difficulties": ["Hard"],
+        "difficulties": ["Hard", "Solo"],
     },
     "Behemoth G1": {
         "names": [
